@@ -1,5 +1,7 @@
 package co.yusufavci.employeerecord.service;
 
+import co.yusufavci.employeerecord.dto.DateAndSalaryRequest;
+import co.yusufavci.employeerecord.dto.DepartmentLocationUpdateDto;
 import co.yusufavci.employeerecord.dto.EmployeeDto;
 
 import java.util.List;
@@ -18,5 +20,13 @@ public interface EmployeeService {
     void delete(String id);
 
     List<EmployeeDto> listAll();
+
+    List<EmployeeDto> listAllByDateAfterAndSalaryIsGreater(DateAndSalaryRequest request);
+
+    String updateDepartmentLocation(DepartmentLocationUpdateDto locationUpdateDto);
+
+    void drawWinnerOfTheMonth();
+
+    EmployeeDto getWinnerOfTheMonth();
 }
 
