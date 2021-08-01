@@ -1,7 +1,7 @@
 package co.yusufavci.employeerecord.domain;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDate;
 
 /**
  * Created by yusuf on 31.07.2021.
@@ -11,17 +11,17 @@ import java.util.Date;
 public class MonthlyPrizeWinner extends BaseEntity {
 
     @Column
-    private Date date;
+    private LocalDate date;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employee_id")
     private Employee employee;
 
-    public Date getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 

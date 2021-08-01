@@ -1,6 +1,6 @@
 package co.yusufavci.employeerecord.dto;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 /**
  * Created by yusuf on 31.07.2021.
@@ -15,7 +15,7 @@ public class EmployeeDto {
     private String address;
     private String departmentId;
     private String employmentId;
-    private Date employmentStartDate;
+    private LocalDate employmentStartDate;
     private Double salary;
 
     public String getId() {
@@ -74,11 +74,11 @@ public class EmployeeDto {
         this.employmentId = employmentId;
     }
 
-    public Date getEmploymentStartDate() {
+    public LocalDate getEmploymentStartDate() {
         return employmentStartDate;
     }
 
-    public void setEmploymentStartDate(Date employmentStartDate) {
+    public void setEmploymentStartDate(LocalDate employmentStartDate) {
         this.employmentStartDate = employmentStartDate;
     }
 

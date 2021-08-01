@@ -1,23 +1,20 @@
 package co.yusufavci.employeerecord.service.impl;
 
-import co.yusufavci.employeerecord.domain.Department;
-import co.yusufavci.employeerecord.domain.Employee;
-import co.yusufavci.employeerecord.domain.Employment;
+import co.yusufavci.employeerecord.domain.*;
 import co.yusufavci.employeerecord.dto.DateAndSalaryRequest;
 import co.yusufavci.employeerecord.dto.DepartmentLocationUpdateDto;
 import co.yusufavci.employeerecord.dto.EmployeeDto;
 import co.yusufavci.employeerecord.exception.EntityNotFoundException;
-import co.yusufavci.employeerecord.repository.DepartmentRepository;
-import co.yusufavci.employeerecord.repository.EmployeeRepository;
-import co.yusufavci.employeerecord.repository.EmploymentRepository;
-import co.yusufavci.employeerecord.repository.MonthlyPrizeWinnerRepository;
+import co.yusufavci.employeerecord.repository.*;
 import co.yusufavci.employeerecord.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 /**
  * Created by yusuf on 31.07.2021.
@@ -30,6 +27,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     private EmploymentRepository employmentRepository;
     private DepartmentRepository departmentRepository;
     private MonthlyPrizeWinnerRepository monthlyPrizeWinnerRepository;
+    private LocationRepository locationRepository;
 
     @Override
     public String create(EmployeeDto employeeDto) {
@@ -48,6 +46,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public String update(EmployeeDto employeeDto) {
+        //TODO
         return null;
     }
 
@@ -82,18 +81,43 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public String updateDepartmentLocation(DepartmentLocationUpdateDto locationUpdateDto) {
+        Optional<Department> departmentOptional = departmentRepository.findById(locationUpdateDto.getDepartmentId());
+        if (!departmentOptional.isPresent()) {
+            throw new EntityNotFoundException("");
+        }
+        Optional<Location> locationOptional = locationRepository.findById(locationUpdateDto.getNewLocationId());
+        if (!locationOptional.isPresent()) {
+            throw new EntityNotFoundException("");
+        }
 
-        return null;
+        Department department = departmentOptional.get();
+        department.setLocation(locationOptional.get());
+
+        return departmentRepository.save(department).getId();
     }
 
     @Override
     public void drawWinnerOfTheMonth() {
+        List<Employee> employeeList = employeeRepository.findAll();
+        int listSize = employeeList.size();
+        Random r = new Random();
+        int result = r.nextInt(listSize);
+        Employee luckyEmployee = employeeList.get(result);
 
+        MonthlyPrizeWinner monthlyPrizeWinner = new MonthlyPrizeWinner();
+        monthlyPrizeWinner.setEmployee(luckyEmployee);
+        monthlyPrizeWinner.setDate(LocalDate.now());
+        monthlyPrizeWinnerRepository.save(monthlyPrizeWinner);
     }
 
     @Override
     public EmployeeDto getWinnerOfTheMonth() {
-        return null;
+        LocalDate localDate = LocalDate.now();
+        MonthlyPrizeWinner monthlyPrizeWinner = monthlyPrizeWinnerRepository.findByDate_MonthAndDate_Year(localDate.getMonth(), localDate.getYear());
+        if (monthlyPrizeWinner == null) {
+            throw new EntityNotFoundException("");
+        }
+        return entityToDto(monthlyPrizeWinner.getEmployee());
     }
 
     private Employee dtoToEntity(EmployeeDto employeeDto) {
@@ -151,5 +175,10 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Autowired
     public void setMonthlyPrizeWinnerRepository(MonthlyPrizeWinnerRepository monthlyPrizeWinnerRepository) {
         this.monthlyPrizeWinnerRepository = monthlyPrizeWinnerRepository;
+    }
+
+    @Autowired
+    public void setLocationRepository(LocationRepository locationRepository) {
+        this.locationRepository = locationRepository;
     }
 }
