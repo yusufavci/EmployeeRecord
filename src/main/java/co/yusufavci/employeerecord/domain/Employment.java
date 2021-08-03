@@ -19,7 +19,7 @@ public class Employment extends BaseEntity {
     @Column
     private LocalDate endDate;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(mappedBy = "employment")
     @JoinColumn(nullable = false, name = "employee_id")
     private Employee employee;
 

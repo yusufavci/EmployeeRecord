@@ -1,5 +1,6 @@
 package co.yusufavci.employeerecord.service.impl;
 
+import co.yusufavci.employeerecord.constants.ExceptionMessages;
 import co.yusufavci.employeerecord.domain.*;
 import co.yusufavci.employeerecord.dto.DateAndSalaryRequest;
 import co.yusufavci.employeerecord.dto.DepartmentLocationUpdateDto;
@@ -8,6 +9,7 @@ import co.yusufavci.employeerecord.exception.EntityNotFoundException;
 import co.yusufavci.employeerecord.repository.*;
 import co.yusufavci.employeerecord.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -24,7 +26,6 @@ import java.util.Random;
 public class EmployeeServiceImpl implements EmployeeService {
 
     private EmployeeRepository employeeRepository;
-    private EmploymentRepository employmentRepository;
     private DepartmentRepository departmentRepository;
     private MonthlyPrizeWinnerRepository monthlyPrizeWinnerRepository;
     private LocationRepository locationRepository;
@@ -39,32 +40,19 @@ public class EmployeeServiceImpl implements EmployeeService {
     public EmployeeDto read(String id) {
         Optional<Employee> employeeOptional = employeeRepository.findById(id);
         if (!employeeOptional.isPresent()) {
-            throw new EntityNotFoundException("");
+            throw new EntityNotFoundException(ExceptionMessages.EMPLOYEE_NOT_FOUND);
         }
         return entityToDto(employeeOptional.get());
     }
 
     @Override
     public String update(EmployeeDto employeeDto) {
-        //TODO
-        return null;
+        return employeeRepository.save(dtoToEntity(employeeDto)).getId();
     }
 
     @Override
     public void delete(String id) {
         employeeRepository.deleteById(id);
-    }
-
-    @Override
-    public List<EmployeeDto> listAll() {
-        List<EmployeeDto> employeeDtoList = new ArrayList<>();
-        List<Employee> employeeList = employeeRepository.findAll();
-
-        for (Employee employee : employeeList) {
-            employeeDtoList.add(entityToDto(employee));
-        }
-
-        return employeeDtoList;
     }
 
     @Override
@@ -83,11 +71,11 @@ public class EmployeeServiceImpl implements EmployeeService {
     public String updateDepartmentLocation(DepartmentLocationUpdateDto locationUpdateDto) {
         Optional<Department> departmentOptional = departmentRepository.findById(locationUpdateDto.getDepartmentId());
         if (!departmentOptional.isPresent()) {
-            throw new EntityNotFoundException("");
+            throw new EntityNotFoundException(ExceptionMessages.DEPARTMENT_NOT_FOUND);
         }
         Optional<Location> locationOptional = locationRepository.findById(locationUpdateDto.getNewLocationId());
         if (!locationOptional.isPresent()) {
-            throw new EntityNotFoundException("");
+            throw new EntityNotFoundException(ExceptionMessages.LOCATION_NOT_FOUND);
         }
 
         Department department = departmentOptional.get();
@@ -96,10 +84,14 @@ public class EmployeeServiceImpl implements EmployeeService {
         return departmentRepository.save(department).getId();
     }
 
+    @Scheduled(cron = "*/5 * * * * ?")
     @Override
     public void drawWinnerOfTheMonth() {
         List<Employee> employeeList = employeeRepository.findAll();
         int listSize = employeeList.size();
+        if (listSize == 0) {
+            return;
+        }
         Random r = new Random();
         int result = r.nextInt(listSize);
         Employee luckyEmployee = employeeList.get(result);
@@ -112,16 +104,19 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public EmployeeDto getWinnerOfTheMonth() {
-        LocalDate localDate = LocalDate.now();
-        MonthlyPrizeWinner monthlyPrizeWinner = monthlyPrizeWinnerRepository.findByDate_MonthAndDate_Year(localDate.getMonth(), localDate.getYear());
+        LocalDate now = LocalDate.now();
+        LocalDate startDate = now.withDayOfMonth(1);
+        LocalDate endDate = now.withDayOfMonth(now.lengthOfMonth());
+        MonthlyPrizeWinner monthlyPrizeWinner = monthlyPrizeWinnerRepository.findByDateBetween(startDate, endDate);
         if (monthlyPrizeWinner == null) {
-            throw new EntityNotFoundException("");
+            throw new EntityNotFoundException(ExceptionMessages.MONTHLY_PRIZE_WINNER_NOT_FOUND);
         }
         return entityToDto(monthlyPrizeWinner.getEmployee());
     }
 
     private Employee dtoToEntity(EmployeeDto employeeDto) {
         Employee employee = new Employee();
+        employee.setId(employeeDto.getId());
         employee.setFirstName(employeeDto.getFirstName());
         employee.setLastName(employeeDto.getLastName());
         employee.setPhone(employeeDto.getPhone());
@@ -131,7 +126,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         if (departmentOptional.isPresent()) {
             employee.setDepartment(departmentOptional.get());
         } else {
-            throw new EntityNotFoundException("");
+            throw new EntityNotFoundException(ExceptionMessages.DEPARTMENT_NOT_FOUND);
         }
 
         Employment employment = new Employment();
@@ -160,11 +155,6 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Autowired
     public void setEmployeeRepository(EmployeeRepository employeeRepository) {
         this.employeeRepository = employeeRepository;
-    }
-
-    @Autowired
-    public void setEmploymentRepository(EmploymentRepository employmentRepository) {
-        this.employmentRepository = employmentRepository;
     }
 
     @Autowired

@@ -19,8 +19,6 @@ public interface EmployeeService {
 
     void delete(String id);
 
-    List<EmployeeDto> listAll();
-
     List<EmployeeDto> listAllByDateAfterAndSalaryIsGreater(DateAndSalaryRequest request);
 
     String updateDepartmentLocation(DepartmentLocationUpdateDto locationUpdateDto);

@@ -17,17 +17,11 @@ public abstract class BaseEntityAudit implements Serializable {
 
     private Instant deletedAt;
 
-    /**
-     * Sets createdAt before insert
-     */
     @PrePersist
     public void setCreationTime() {
         this.createdAt = Instant.now();
     }
 
-    /**
-     * Sets updatedAt before update
-     */
     @PreUpdate
     public void setChangeTime() {
         this.updatedAt = Instant.now();

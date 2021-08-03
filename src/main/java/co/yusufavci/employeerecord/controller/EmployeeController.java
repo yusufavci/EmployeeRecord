@@ -1,6 +1,8 @@
 package co.yusufavci.employeerecord.controller;
 
 import co.yusufavci.employeerecord.constants.SuccessMessages;
+import co.yusufavci.employeerecord.dto.DateAndSalaryRequest;
+import co.yusufavci.employeerecord.dto.DepartmentLocationUpdateDto;
 import co.yusufavci.employeerecord.dto.EmployeeDto;
 import co.yusufavci.employeerecord.dto.SuccessResponse;
 import co.yusufavci.employeerecord.service.EmployeeService;
@@ -16,15 +18,14 @@ import java.util.List;
  */
 
 @RestController
-@RequestMapping("rest/post")
+@RequestMapping("/rest/employees")
 public class EmployeeController {
 
     private EmployeeService employeeService;
 
-    @PostMapping("")
-    public ResponseEntity<SuccessResponse> create(@RequestBody EmployeeDto employeeDto) {
-        employeeService.create(employeeDto);
-        return new ResponseEntity<>(new SuccessResponse(SuccessMessages.EMPLOYEE_CREATE_MESSAGE), HttpStatus.OK);
+    @PostMapping
+    public ResponseEntity<String> create(@RequestBody EmployeeDto employeeDto) {
+        return new ResponseEntity<>(employeeService.create(employeeDto), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
@@ -45,9 +46,20 @@ public class EmployeeController {
         return new ResponseEntity<>(new SuccessResponse(SuccessMessages.EMPLOYEE_DELETE_MESSAGE), HttpStatus.OK);
     }
 
-    @GetMapping("/list")
-    public ResponseEntity<List<EmployeeDto>> list() {
-        return new ResponseEntity<>(employeeService.listAll(), HttpStatus.OK);
+    @GetMapping("/getWinnerOfTheMonth")
+    public ResponseEntity<EmployeeDto> getWinnerOfTheMonth() {
+        return new ResponseEntity<>(employeeService.getWinnerOfTheMonth(), HttpStatus.OK);
+    }
+
+    @PostMapping("/updateDepartmentLocation")
+    public ResponseEntity<SuccessResponse> updateDepartmentLocation(@RequestBody DepartmentLocationUpdateDto updateDto) {
+        employeeService.updateDepartmentLocation(updateDto);
+        return new ResponseEntity<>(new SuccessResponse(SuccessMessages.DEPARTMENT_LOCATION_UPDATE_MESSAGE), HttpStatus.OK);
+    }
+
+    @PostMapping("/listAllByDateAfterAndSalaryIsGreater")
+    public ResponseEntity<List<EmployeeDto>> listAllByDateAfterAndSalaryIsGreater(@RequestBody DateAndSalaryRequest dateAndSalaryRequest) {
+        return new ResponseEntity<>(employeeService.listAllByDateAfterAndSalaryIsGreater(dateAndSalaryRequest), HttpStatus.OK);
     }
 
     @Autowired

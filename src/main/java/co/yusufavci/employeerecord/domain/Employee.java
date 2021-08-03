@@ -25,7 +25,7 @@ public class Employee extends BaseEntity {
     @JoinColumn(name = "department_id")
     private Department department;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(nullable = false, name = "employment_id")
     private Employment employment;
 

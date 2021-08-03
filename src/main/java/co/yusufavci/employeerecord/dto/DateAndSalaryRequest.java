@@ -1,20 +1,20 @@
 package co.yusufavci.employeerecord.dto;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 /**
  * Created by yusuf on 31.07.2021.
  */
 public class DateAndSalaryRequest {
 
-    private Date fromDate;
+    private LocalDate fromDate;
     private Double salary;
 
-    public Date getFromDate() {
+    public LocalDate getFromDate() {
         return fromDate;
     }
 
-    public void setFromDate(Date fromDate) {
+    public void setFromDate(LocalDate fromDate) {
         this.fromDate = fromDate;
     }
 
